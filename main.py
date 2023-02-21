@@ -51,6 +51,21 @@ class MainWindow(QMainWindow):
 
         # 摄像头捕捉
         available_cameras = QMediaDevices.videoInputs()
+        if available_cameras:
+            self._camera_info = available_cameras[0]
+            self._camera = QCamera(self._camera_info)
+            self._camera.errorOccurred.connect(self._camera_error)
+            self._image_capture = QImageCapture(self._camera)
+            # self._image_capture.imageCaptured.connect(self.image_captured)
+            # self._image_capture.imageSaved.connect(self.image_saved)
+            # self._image_capture.errorOccurred.connect(self._capture_error)
+            self._capture_session = QMediaCaptureSession()
+            self._capture_session.setCamera(self._camera)
+            self._capture_session.setImageCapture(self._image_capture)
+
+        if self._camera and self._camera.error() == QCamera.NoError:
+            self._capture_session.setVideoOutput(self.ui.widget_2)
+            self._camera.start()
 
     @Slot()
     def start(self):
@@ -61,6 +76,10 @@ class MainWindow(QMainWindow):
     @Slot("QMediaPlayer::Error", str)
     def _player_error(self, error, error_string):
         print(error_string, error, file=sys.stderr)
+
+    @Slot(QCamera.Error, str)
+    def _camera_error(self, error, error_string):
+        print(error_string, file=sys.stderr)
 
 
 if __name__ == "__main__":

@@ -94,20 +94,13 @@ class Ui_Form(object):
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.widget = QVideoWidget(self.frame_2)
         self.widget.setObjectName(u"widget")
-        sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
-        self.widget.setSizePolicy(sizePolicy)
 
         self.horizontalLayout_3.addWidget(self.widget)
 
-        self.label_4 = QLabel(self.frame_2)
-        self.label_4.setObjectName(u"label_4")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.label_4.sizePolicy().hasHeightForWidth())
-        self.label_4.setSizePolicy(sizePolicy2)
+        self.widget_2 = QVideoWidget(self.frame_2)
+        self.widget_2.setObjectName(u"widget_2")
 
-        self.horizontalLayout_3.addWidget(self.label_4)
+        self.horizontalLayout_3.addWidget(self.widget_2)
 
 
         self.retranslateUi(Form)
@@ -124,6 +117,5 @@ class Ui_Form(object):
 
         self.pushButton.setText(QCoreApplication.translate("Form", u"\u5f00\u59cb", None))
         self.pushButton_2.setText(QCoreApplication.translate("Form", u"\u7ed3\u675f", None))
-        self.label_4.setText("")
     # retranslateUi
 
