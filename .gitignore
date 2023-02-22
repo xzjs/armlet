@@ -1,4 +1,6 @@
-/.DS_Store
+.DS_Store
 /__pycache__
 /armlet
-/test.mp4
+*.mp4
+*.csv
+main.py

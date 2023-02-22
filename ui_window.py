@@ -68,8 +68,8 @@ class Ui_Form(object):
         self.horizontalLayout_2.addWidget(self.label_3)
 
         self.comboBox = QComboBox(self.frame)
-        self.comboBox.addItem("")
         self.comboBox.setObjectName(u"comboBox")
+        self.comboBox.setLocale(QLocale(QLocale.Chinese, QLocale.China))
 
         self.horizontalLayout_2.addWidget(self.comboBox)
 
@@ -77,11 +77,6 @@ class Ui_Form(object):
         self.pushButton.setObjectName(u"pushButton")
 
         self.horizontalLayout_2.addWidget(self.pushButton)
-
-        self.pushButton_2 = QPushButton(self.frame)
-        self.pushButton_2.setObjectName(u"pushButton_2")
-
-        self.horizontalLayout_2.addWidget(self.pushButton_2)
 
         self.frame_2 = QFrame(Form)
         self.frame_2.setObjectName(u"frame_2")
@@ -113,9 +108,6 @@ class Ui_Form(object):
         self.label.setText(QCoreApplication.translate("Form", u"\u8bbe\u5907", None))
         self.label_2.setText(QCoreApplication.translate("Form", u"\u6bd4\u7279\u7387", None))
         self.label_3.setText(QCoreApplication.translate("Form", u"\u9009\u62e9\u89c6\u9891", None))
-        self.comboBox.setItemText(0, QCoreApplication.translate("Form", u"a", None))
-
-        self.pushButton.setText(QCoreApplication.translate("Form", u"\u5f00\u59cb", None))
-        self.pushButton_2.setText(QCoreApplication.translate("Form", u"\u7ed3\u675f", None))
+        self.pushButton.setText(QCoreApplication.translate("Form", u"start", None))
     # retranslateUi
 

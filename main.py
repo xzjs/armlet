@@ -1,3 +1,4 @@
+import csv
 import os
 import threading
 import serial
@@ -17,17 +18,40 @@ from PySide6.QtMultimedia import (QCamera, QImageCapture,
                                   QMediaDevices, QMediaRecorder)
 
 
+class CanStopTask:
+    def __init__(self, device, rate, startTime):
+        self._running = True
+        serialPort = device
+        baudRate = rate
+        self.startTime = startTime
+        self.ser = serial.Serial(serialPort, baudRate)
+        self.ser.flushInput()
+
+    def terminate(self):
+        self._running = False
+
+    def run(self):
+        while self._running:
+            count = self.ser.inWaiting()
+            if count != 0:
+                recv = self.ser.read(self.ser.in_waiting).decode("gbk")
+                with open("%s/output/%f.csv" % (os.getcwd(), self.startTime), 'a', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerow([recv, time.time()-self.startTime])
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        self.basePath = os.getcwd()
 
+        # 初始化界面
         self.ui.pushButton.clicked.connect(self.start)
-        self.ui.pushButton_2.clicked.connect(self.end)
-
-        # 数据采集
-        self.t = None
+        files = [f for f in os.listdir(
+            self.basePath+"/video") if not f.startswith('.')]
+        self.ui.comboBox.addItems(files)
 
         # 视频播放
         self.player = QMediaPlayer()
@@ -51,24 +75,28 @@ class MainWindow(QMainWindow):
         if self._camera and self._camera.error() == QCamera.NoError:
             self._capture_session.setVideoOutput(self.ui.widget_2)
             self._camera.start()
-            print(os.getcwd())
-            self.recorder.setOutputLocation(
-                "%s/%f.mp4" % (os.getcwd(), time.time()))
 
     @Slot()
     def start(self):
-        self.player.setSource("test.mp4")
-        self.player.play()
-        self.recorder.record()
-        self.t = threading.Thread(target=self.gather, args=(
-            "/dev/tty.usbserial-14310", 115200))
-        self.t.start()
-
-    @Slot()
-    def end(self):
-        self.player.stop()
-        self.recorder.stop()
-        threading.Thread._Thread__stop(self.t)
+        if self.ui.pushButton.text() == "start":
+            self.player.setSource(
+                self.basePath+"/video/"+self.ui.comboBox.currentText())
+            self.player.play()
+            startTime = time.time()
+            self.recorder.setOutputLocation(
+                "%s/output/%f.mp4" % (self.basePath, startTime))
+            self.recorder.record()
+            device = self.ui.lineEdit.text() if self.ui.lineEdit.text(
+            ) != "" else "/dev/tty.usbserial-14310"
+            rate = self.ui.lineEdit_2.text() if self.ui.lineEdit_2.text() != "" else 115200
+            self.task = CanStopTask(device, rate, startTime)
+            threading.Thread(target=self.task.run).start()
+            self.ui.pushButton.setText("stop")
+        else:
+            self.player.stop()
+            self.recorder.stop()
+            self.task.terminate()
+            self.ui.pushButton.setText("start")
 
     @Slot("QMediaPlayer::Error", str)
     def _player_error(self, error, error_string):
@@ -77,20 +105,6 @@ class MainWindow(QMainWindow):
     @Slot(QCamera.Error, str)
     def _camera_error(self, error, error_string):
         print(error_string, file=sys.stderr)
-
-    def gather(self, device, rate):
-        # serialPort = "/dev/tty.usbserial-14310"
-        # baudRate = 115200
-        serialPort = device
-        baudRate = rate
-        ser = serial.Serial(serialPort, baudRate)
-        ser.flushInput()
-
-        while True:
-            count = ser.inWaiting()
-            if count != 0:
-                recv = ser.read(ser.in_waiting).decode("gbk")
-                print(recv)
 
 
 if __name__ == "__main__":

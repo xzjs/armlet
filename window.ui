@@ -70,24 +70,15 @@
     </item>
     <item>
      <widget class="QComboBox" name="comboBox">
-      <item>
-       <property name="text">
-        <string>a</string>
-       </property>
-      </item>
+      <property name="locale">
+       <locale language="Chinese" country="China"/>
+      </property>
      </widget>
     </item>
     <item>
      <widget class="QPushButton" name="pushButton">
       <property name="text">
-       <string>开始</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="pushButton_2">
-      <property name="text">
-       <string>结束</string>
+       <string>start</string>
       </property>
      </widget>
     </item>
