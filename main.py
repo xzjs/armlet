@@ -68,6 +68,7 @@ class MainWindow(QMainWindow):
         self._capture_session = None
         self.recorder = QMediaRecorder()
         self.recorder.errorOccurred.connect(self._recorder_error)
+        self.recorder.recorderStateChanged.connect(self.recorderStateChanged)
         if available_cameras:
             self._camera_info = available_cameras[0]
             self._camera = QCamera(self._camera_info)
@@ -85,21 +86,25 @@ class MainWindow(QMainWindow):
     @Slot()
     def start(self):
         if self.ui.pushButton.text() == "start":
-            videoPath = os.path.join(
-                self.basePath, "video", self.ui.comboBox.currentText())
-            self.player.setSource(QUrl.fromLocalFile(videoPath))
-            self.player.play()
             startTime = time.time()
-            path = os.path.join(self.basePath, "output",
-                                str(int(startTime))+".mp4")
-            print(path)
-            self.recorder.setOutputLocation(QUrl.fromLocalFile(path))
-            self.recorder.record()
+
             device = self.ui.lineEdit.text() if self.ui.lineEdit.text(
             ) != "" else "/dev/tty.usbserial-14310"
             rate = self.ui.lineEdit_2.text() if self.ui.lineEdit_2.text() != "" else 115200
             self.task = CanStopTask(device, rate, startTime)
-            threading.Thread(target=self.task.run).start()
+            # threading.Thread(target=self.task.run).start()
+
+            path = os.path.join(self.basePath, "output",
+                                str(int(startTime))+".mp4")
+            self.recorder.setOutputLocation(QUrl.fromLocalFile(path))
+            self.recorder.record()
+            # threading.Thread(target=self.recorder.record).start()
+
+            videoPath = os.path.join(
+                self.basePath, "video", self.ui.comboBox.currentText())
+            self.player.setSource(QUrl.fromLocalFile(videoPath))
+            self.player.play()
+
             self.ui.pushButton.setText("stop")
         else:
             self.player.stop()
@@ -120,6 +125,15 @@ class MainWindow(QMainWindow):
     def _recorder_error(self, error, error_string):
         print(error_string, error, file=sys.stderr)
         sys.exit()
+
+    def recorderStateChanged(self, state):
+        if state == QMediaRecorder.RecordingState:
+            self.task.startTime = time.time()
+            threading.Thread(target=self.task.run).start()
+            print(time.time())
+        elif state == QMediaRecorder.StoppedState:
+            self.task.terminate()
+            print(time.time())
 
 
 if __name__ == "__main__":
